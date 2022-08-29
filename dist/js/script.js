@@ -93,46 +93,79 @@ window.addEventListener('DOMContentLoaded', () => {
 
         }
     }
-    setClock('.timer', '2022-11-20');
+    setClock('.timer', '2022-11-14');
 
     // Modal
-    const modalTrigger = document.querySelector('[data-modal]'),
-        modal = document.querySelector('.modal'),
+    const modalTrigger = document.querySelectorAll('[data-modal]'), // [] дата атрибуты селектор
+        modal = document.querySelector('[data-crutch]'),
+        // modal = document.querySelector('.modal'),
         modalCloseBtn = document.querySelector('[data-close]');
 
-    modalTrigger.addEventListener('click', () => {
-        console.log('click');
-        modal.classList.add('show');
+    function openModal() {
+        // modal.classList.add('show');
+        // modal.classList.remove('hide');
+        document.documentElement.scrollHeight + 1;
+        modal.classList.remove('modal');
         modal.classList.remove('hide');
+        modal.classList.add('modal_no_display');
+        // modal.classList.toggle('show');
+        document.body.style.overflow = 'hidden';
+        clearInterval(modalTimerId); // если открыли сами модалку, то отключаем таймер
+        console.log('function openModel ');
+    }
 
-        modalCloseBtn.addEventListener('click', () => {
-            console.log('click');
+    function closeModel() {
+        modal.classList.remove('modal_no_display');
+        modal.classList.add('modal');
+        modal.classList.add('hide');
+        document.body.style.overflow = '';
+        console.log('function closeModel ');
+    }
 
-            modal.classList.add('hide');
-            modal.classList.remove('show');
+    modalTrigger.forEach(btn => {
+        btn.addEventListener('click', () => {
+            openModal();
+            console.log('click button open modal window');
         });
-
-
     });
 
 
 
+    modalCloseBtn.addEventListener('click', closeModel);
+    // modalCloseBtn.addEventListener('click', (e) => { // закрываем модальное окно
+    //     // modal.classList.add('hide');
+    //     // modal.classList.remove('show');
+    //     closeModel(e);
+    //     console.log('click off button');
+    // });
 
+    modal.addEventListener('click', (e) => { // кликаем в любую часть и модальное окно закрывается 
+        if (e.target === modal) { // target - куда кликнул пользователь
+            closeModel();
+            console.log('click outsize modal window');
+        }
+    });
 
+    document.addEventListener('keydown', (e) => { // слушаем esc и проверяем активно ли модальное окно
+        if (e.code === "Escape" && modal.classList.contains('modal_no_display')) {
+            closeModel();
+            console.log('click escape ');
+        }
+    });
 
+    const modalTimerId = setTimeout(openModal, 15000);
 
+    function showModalByScroll() {
+        console.log(Math.round(window.pageYOffset + document.documentElement.clientHeight));
+        console.log('scrollHeight ' + document.documentElement.scrollHeight);
+        if (Math.round(window.pageYOffset + document.documentElement.clientHeight) >= document.documentElement.scrollHeight) { // докрутили до конца
+            openModal();
+            console.log('scroll show modal window ');
+            window.removeEventListener('scroll', showModalByScroll);
+            console.log('scroll remove');
+        } // pageXOffset сколько прокрутил + clientHeight видимая часть scrollHeight - вся высота
+    }
 
-
-
-
-
-
-
-
-
-
-
-
-
+    window.addEventListener('scroll', showModalByScroll);
 
 });
