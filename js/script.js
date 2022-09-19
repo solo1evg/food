@@ -271,8 +271,17 @@ window.addEventListener('DOMContentLoaded', () => {
             const request = new XMLHttpRequest();
             request.open('POST', 'server.php');
             // request.setRequestHeader('Content-type', 'multipart/form-date'); // <- при использовании XMLHttpRequest и formData не нужно устанавливать заголовок
+            request.setRequestHeader('Content-type', 'application/json');
             const formData = new FormData(form); // помещаем в конструктор из какой формы нам нужно собрать данные  обязательно аттрибут name
-            request.send(formData);
+
+            const obj = {};
+            formData.forEach(function (value, key) {
+                obj[key] = value;
+            });
+
+            const json = JSON.stringify(obj);
+
+            request.send(json);
 
             request.addEventListener('load', () => {
                 if (request.status === 200) {
