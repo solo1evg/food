@@ -189,8 +189,8 @@ window.addEventListener('DOMContentLoaded', () => {
         // <div class="menu_item">            
         render() {
             const element = document.createElement('div');
-            if (this.classes.length === 0) {
-                this.element = 'menu__2item';
+            if (this.classes.length === 0) { // если массив пустой, то устанавливаем дефолтное значение
+                this.element = 'menu__item';
                 element.classList.add(this.element);
             } else {
                 this.classes.forEach(className => element.classList.add(className));
@@ -246,5 +246,46 @@ window.addEventListener('DOMContentLoaded', () => {
         'menu__item'
     ).render();
 
+    // Forms ajax
+    const forms = document.querySelectorAll('form'); // получаем все теги по селектору form 
+    const message = {
+        loading: 'Load..',
+        success: 'Success!',
+        failure: 'ERR..'
+    };
 
+    forms.forEach(item => {
+        postData(item);
+    });
+
+    function postData(form) { // функция поиска данных
+        form.addEventListener('submit', (e) => { // обработчик событий если отправляем любую форму
+            e.preventDefault(); // убираем дефолтное поведение
+
+            // создание нового блока для вывода сообщения
+            const statusMessage = document.createElement('div');
+            statusMessage.classList.add('status');
+            statusMessage.textContent = message.loading;
+            form.append(statusMessage);
+
+            const request = new XMLHttpRequest();
+            request.open('POST', 'server.php');
+            // request.setRequestHeader('Content-type', 'multipart/form-date'); // <- при использовании XMLHttpRequest и formData не нужно устанавливать заголовок
+            const formData = new FormData(form); // помещаем в конструктор из какой формы нам нужно собрать данные  обязательно аттрибут name
+            request.send(formData);
+
+            request.addEventListener('load', () => {
+                if (request.status === 200) {
+                    console.log(request.response);
+                    statusMessage.textContent = message.success;
+                    form.reset();
+                    setTimeout(() => {
+                        statusMessage.remove();
+                    }, 2000);
+                } else {
+                    statusMessage.textContent = message.failure;
+                }
+            });
+        });
+    }
 });
